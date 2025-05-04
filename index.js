@@ -24,6 +24,20 @@ async function run() {
     await client.connect();
     const productCollection = client.db('BuyHubDB').collection('product');
     const cartCollection = client.db('BuyHubDB').collection('cart');
+    const userCollection  = client.db('BuyHubDB').collection('users');
+
+    // Create new user
+    app.post("/api/user", async (req, res) => {
+      const userInfo = req.body;
+      const existing = await userCollection.findOne({ email: userInfo.email });
+
+      if (existing) {
+        return res.send({ message: "User already exists" });
+      }
+
+      const result = await userCollection.insertOne(userInfo);
+      res.send(result);
+    });
 
     // Get all products
     app.get("/product", async (req, res) => {
