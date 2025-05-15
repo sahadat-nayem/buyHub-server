@@ -22,9 +22,9 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
-    const productCollection = client.db('BuyHubDB').collection('product');
-    const cartCollection = client.db('BuyHubDB').collection('cart');
-    const userCollection  = client.db('BuyHubDB').collection('users');
+    const productCollection = client.db("BuyHubDB").collection("product");
+    const cartCollection = client.db("BuyHubDB").collection("cart");
+    const userCollection = client.db("BuyHubDB").collection("users");
 
     // Create new user
     app.post("/api/user", async (req, res) => {
@@ -42,6 +42,23 @@ async function run() {
     // Get all products
     app.get("/product", async (req, res) => {
       const result = await productCollection.find().toArray();
+      res.send(result);
+    });
+
+    // Get limited products
+    app.get("/limited-products", async (req, res) => {
+      try {
+        const result = await productCollection.find().limit(8).toArray();
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Failed to load products" });
+      }
+    });
+
+    // Add new product
+    app.post("/product", async (req, res) => {
+      const newProduct = req.body;
+      const result = await productCollection.insertOne(newProduct);
       res.send(result);
     });
 
